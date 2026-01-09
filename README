@@ -1,0 +1,5 @@
+O projeto utiliza Docker Compose para orquestrar a aplicação Node.js e o banco PostgreSQL, garantindo ambiente padronizado e reprodutível.
+
+#Comandos Docker
+docker-compose up --build
+docker-compose exec postgres psql -U postgres -d blog

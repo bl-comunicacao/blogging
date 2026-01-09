@@ -1,0 +1,23 @@
+services:
+  api:
+    build: .
+    ports:
+      - "3000:3000" # ou a porta que sua API usa
+    env_file: .env
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: blog
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432" # opcional, só se quiser acessar pelo host
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./src/tables.sql:/docker-entrypoint-initdb.d/tables.sql
+
+volumes:
+  postgres_data:
