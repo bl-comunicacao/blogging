@@ -1,5 +1,6 @@
 module.exports = {
-  testEnvironment: 'node',
-  setupFilesAfterEnv: ['<rootDir>/tests/setup.js'],
-  testTimeout: 10000
-};
+  testEnvironment: "node",
+  testMatch: ["**/tests/**/*.test.js"],
+  testPathIgnorePatterns: ["/node_modules/", "/tests/integration/"],
+  clearMocks: true,
+}

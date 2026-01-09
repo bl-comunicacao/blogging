@@ -1,4 +1,4 @@
-jest.mock("../src/services/post.service", () => ({
+jest.mock("../../src/services/post.service", () => ({
   getAllPosts: jest.fn(),
   getPostById: jest.fn(),
   createPost: jest.fn(),
@@ -7,8 +7,8 @@ jest.mock("../src/services/post.service", () => ({
   searchPosts: jest.fn(),
 }))
 
-const controller = require("../src/controllers/post.controller")
-const service = require("../src/services/post.service")
+const controller = require("../../src/controllers/post.controller")
+const service = require("../../src/services/post.service")
 
 const mockResponse = () => {
   const res = {}

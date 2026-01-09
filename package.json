@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon src/server.js",
-    "test": "jest"
+    "test": "jest",
+    "test:unit": "jest --config jest.config.js",
+    "test:integration": "jest --config jest.integration.config.js --runInBand"
   },
   "keywords": [],
   "author": "",
