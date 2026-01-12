@@ -1,10 +1,10 @@
-require('dotenv').config();
-const express = require('express');
-const routes = require('./routes/post.routes');
+require("dotenv").config()
+const express = require("express")
+const routes = require("./routes/post.routes")
 
-const app = express();
+const app = express()
 
-app.use(express.json());
-app.use('/posts', routes);
+app.use(express.json())
+app.use("/posts", routes)
 
-module.exports = app;
+module.exports = app

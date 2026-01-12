@@ -1,6 +1,18 @@
-require('dotenv').config();
-const app = require('./app');
+require("dotenv").config()
+const app = require("./app")
+const initDatabase = require("./config/init-db")
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3000
 
-app.listen(PORT, () => console.log(`Server rodando na porta ${PORT}`))
+;(async () => {
+  try {
+    await initDatabase()
+
+    app.listen(PORT, () => {
+      console.log(`Server rodando na porta ${PORT}`)
+    })
+  } catch (error) {
+    console.error("Erro ao iniciar a aplicação:", error.message)
+    process.exit(1)
+  }
+})()

@@ -1,6 +1,6 @@
+require("dotenv").config({ path: ".env.test" })
+
 module.exports = {
   testEnvironment: "node",
-  testMatch: ["**/tests/integration/**/*.test.js"],
   setupFilesAfterEnv: ["<rootDir>/tests/integration/setup.js"],
-  clearMocks: true,
 }
