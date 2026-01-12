@@ -5,22 +5,22 @@ require("dotenv").config({
       : process.env.NODE_ENV === "production"
       ? ".env"
       : ".env.local",
-})
+});
 
-const app = require("./app")
-const initDatabase = require("./config/init-db")
+const app = require("./app");
+const initDatabase = require("./config/init-db");
 
-const PORT = process.env.PORT || 3000
+const PORT = process.env.PORT || 3000;
 
-;(async () => {
+(async () => {
   try {
-    await initDatabase()
+    await initDatabase();
 
     app.listen(PORT, () => {
-      console.log(`Server rodando na porta ${PORT}`)
-    })
+      console.log(`O server rodando na porta ${PORT}`);
+    });
   } catch (error) {
-    console.error("Erro ao iniciar a aplicação:", error.message)
-    process.exit(1)
+    console.error("Erro ao iniciar a aplicação:", error.message);
+    process.exit(1);
   }
-})()
+})();
