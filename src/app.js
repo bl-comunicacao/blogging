@@ -1,10 +1,18 @@
 require("dotenv").config()
 const express = require("express")
-const routes = require("./routes/post.routes")
+const swaggerUi = require("swagger-ui-express")
+const swaggerSpec = require("./config/swagger")
+
+const postRoutes = require("./routes/post.routes")
 
 const app = express()
 
 app.use(express.json())
-app.use("/posts", routes)
+
+// Swagger
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec))
+
+// Rotas
+app.use("/posts", postRoutes)
 
 module.exports = app
