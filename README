@@ -4,15 +4,6 @@ Markdown
 
 > Projeto desenvolvido como requisito para a Pós-Graduação em Full Stack Development.
 
-<div style="display: inline_block"><br>
- <p align="center">
-  <a href="https://skillicons.dev">
-    <img src="https://skillicons.dev/icons?i=nodejs,docker,express,postgresql,git,">
-  </a>
-</p>
-</div>
-
-
 ## 📖 Sobre o Projeto
 
 Este projeto consiste no backend de uma plataforma de blog. O sistema foi projetado para atender duas personas principais: **Alunos**, que podem ler e buscar postagens, e **Docentes**, que possuem permissão para gerenciar o conteúdo (criar, editar e excluir posts).
