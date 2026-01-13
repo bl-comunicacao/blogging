@@ -1,5 +1,120 @@
-O projeto utiliza Docker Compose para orquestrar a aplicação Node.js e o banco PostgreSQL, garantindo ambiente padronizado e reprodutível.
+Markdown
 
-#Comandos Docker
-docker-compose up --build
-docker-compose exec postgres psql -U postgres -d blog
+# 📘 Sistema de Blogging - API REST
+
+> Projeto desenvolvido como requisito para a Pós-Graduação em Full Stack Development.
+
+![Badge Node.js](https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white)
+![Badge Docker](https://img.shields.io/badge/Docker-2CA5E0?style=for-the-badge&logo=docker&logoColor=white)
+![Badge Express](https://img.shields.io/badge/Express.js-404D59?style=for-the-badge)
+
+## 📖 Sobre o Projeto
+
+Este projeto consiste no backend de uma plataforma de blog. O sistema foi projetado para atender duas personas principais: **Alunos**, que podem ler e buscar postagens, e **Docentes**, que possuem permissão para gerenciar o conteúdo (criar, editar e excluir posts).
+
+A aplicação segue os princípios da arquitetura REST, utiliza Docker para containerização e possui pipeline de CI/CD configurado via GitHub Actions.
+
+---
+
+## 🏗 Arquitetura
+
+A aplicação foi estruturada seguindo o padrão **MVC (Model-View-Controller)** adaptado para APIs (sem a camada de View, retornando JSON), garantindo a separação de responsabilidades.
+
+* **Node.js & Express:** Responsáveis pelo servidor, roteamento e middlewares.
+* **Persistência de Dados:** Banco de dados para armazenamento das postagens.
+* **Docker:** Utilizado para criar ambientes isolados e reprodutíveis (Desenvolvimento e Produção).
+* **GitHub Actions:** Automação de testes e verificação de build a cada push.
+
+---
+
+## 🚀 Tecnologias Utilizadas
+
+* **Linguagem:** JavaScript (Node.js)
+* **Framework:** Express
+* **Banco de Dados:** PostgreSQL
+* **DevOps:** Docker, Docker Compose
+* **CI/CD:** GitHub Actions
+
+---
+
+## 📦 Como Executar
+
+### Pré-requisitos
+* [Git](https://git-scm.com)
+* [Docker](https://www.docker.com/) & Docker Compose
+
+### Passo a Passo
+
+1.  **Clone o repositório**
+    ```bash
+    git clone https://github.com/bl-comunicacao/blogging.git
+    cd blogging
+    ```
+
+2.  **Configure as Variáveis de Ambiente**
+    Crie um arquivo `.env` na raiz do projeto e configure conforme o exemplo abaixo:
+    ```
+    DB_HOST=postgres
+    DB_PORT=5432
+    DB_USER=postgres
+    DB_PASSWORD=postgres
+    DB_NAME=blog
+    PORT=3000
+    ```
+
+3.  **Execute com Docker Compose**
+    Este comando irá construir a imagem da aplicação e subir o container do banco de dados.
+    ```bash
+    docker-compose up --build
+    ```
+
+4.  **Acesse a API**
+    O servidor estará rodando em: `http://localhost:3000`
+
+---
+
+## 🔌 Documentação da API
+
+Abaixo estão descritos os endpoints disponíveis na aplicação.
+
+### 🔍 Endpoints Públicos (Alunos)
+
+| Método | Rota | Descrição | Parâmetros |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/posts` | Lista todas as postagens recentes. | N/A |
+| `GET` | `/posts/:id` | Exibe o conteúdo completo de um post. | **:id** (ID do post na URL) |
+| `GET` | `/posts/search` | Busca posts por palavra-chave. | **?q=termo** (Query String) |
+
+### 🔐 Endpoints Administrativos (Docentes)
+
+| Método | Rota | Descrição | Corpo da Requisição (JSON) |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/posts` | Cria uma nova postagem. | `{ "title": "...", "content": "...", "author": "..." }` |
+| `PUT` | `/posts/:id` | Atualiza uma postagem existente. | `{ "title": "Novo Título", "content": "Novo Texto", "author": "Novo autor" }` |
+| `DELETE`| `/posts/:id` | Remove uma postagem do sistema. | N/A |
+
+#### Exemplo de Payload (POST /posts)
+```json
+{
+  "title": "A Importância da Containerização",
+  "content": "Docker permite que desenvolvedores empacotem aplicações...",
+  "author": "Prof. Bruno Lopes"
+}
+
+📝 Relato de Experiências e Desafios
+Durante o ciclo de desenvolvimento deste projeto, a equipe enfrentou e superou diversos desafios técnicos e organizacionais:
+
+Orquestração de Containers: Um dos principais desafios foi garantir a comunicação correta entre o container da aplicação (Node.js) e o container do Banco de Dados. Foi necessário implementar estratégias de healthcheck e dependency order no docker-compose para evitar que a aplicação tentasse conectar antes do banco estar pronto.
+
+Implementação da Busca Textual: Desenvolver a lógica do endpoint /posts/search exigiu um estudo sobre como realizar consultas performáticas no banco de dados escolhido (utilizando operadores como LIKE em SQL ou $regex em NoSQL) para filtrar títulos e conteúdos simultaneamente.
+
+Fluxo de CI/CD: A configuração do GitHub Actions foi um aprendizado valioso. Tivemos que configurar o arquivo YAML para garantir que, a cada push, o ambiente fosse montado virtualmente para rodar os testes de integração, garantindo a qualidade do código entregue.
+
+👨‍💻 Autores
+Trabalho desenvolvido pela equipe:
+
+- Matheus Faias
+- Bruno Lopes
+- João Carlos
+- Raphael Alves
+- Emanuel Moraes
