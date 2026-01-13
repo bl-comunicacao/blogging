@@ -4,9 +4,7 @@ Markdown
 
 > Projeto desenvolvido como requisito para a Pós-Graduação em Full Stack Development.
 
-![Badge Node.js](https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white)
-![Badge Docker](https://img.shields.io/badge/Docker-2CA5E0?style=for-the-badge&logo=docker&logoColor=white)
-![Badge Express](https://img.shields.io/badge/Express.js-404D59?style=for-the-badge)
+<img src="https://skillicons.dev/icons?i=nodejs,docker,express,postgresql,git,">
 
 ## 📖 Sobre o Projeto
 
