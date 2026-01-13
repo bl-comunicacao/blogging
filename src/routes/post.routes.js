@@ -1,7 +1,7 @@
-const express = require("express")
-const controller = require("../controllers/post.controller")
+const express = require("express");
+const controller = require("../controllers/post.controller");
 
-const router = express.Router()
+const router = express.Router();
 
 /**
  * @swagger
@@ -25,20 +25,24 @@ const router = express.Router()
  *             required:
  *               - title
  *               - content
+ *               - author
  *             properties:
  *               title:
  *                 type: string
- *                 example: Meu primeiro post
+ *                 example: Título do post
  *               content:
  *                 type: string
  *                 example: Conteúdo do post
+ *              author:
+ *                 type: string
+ *                 example: Autor do post
  *     responses:
  *       201:
  *         description: Post criado com sucesso
  *       400:
  *         description: Erro de validação
  */
-router.post("/", controller.create)
+router.post("/", controller.create);
 
 /**
  * @swagger
@@ -56,7 +60,7 @@ router.post("/", controller.create)
  *               items:
  *                 type: object
  */
-router.get("/", controller.getAll)
+router.get("/", controller.getAll);
 
 /**
  * @swagger
@@ -75,7 +79,7 @@ router.get("/", controller.getAll)
  *       200:
  *         description: Posts encontrados
  */
-router.get("/search", controller.search)
+router.get("/search", controller.search);
 
 /**
  * @swagger
@@ -95,7 +99,7 @@ router.get("/search", controller.search)
  *       404:
  *         description: Post não encontrado
  */
-router.get("/:id", controller.getById)
+router.get("/:id", controller.getById);
 
 /**
  * @swagger
@@ -126,7 +130,7 @@ router.get("/:id", controller.getById)
  *       404:
  *         description: Post não encontrado
  */
-router.put("/:id", controller.update)
+router.put("/:id", controller.update);
 
 /**
  * @swagger
@@ -146,6 +150,6 @@ router.put("/:id", controller.update)
  *       404:
  *         description: Post não encontrado
  */
-router.delete("/:id", controller.remove)
+router.delete("/:id", controller.remove);
 
-module.exports = router
+module.exports = router;
