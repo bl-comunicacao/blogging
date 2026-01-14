@@ -1,5 +1,3 @@
-Markdown
-
 # 📘 Sistema de Blogging - API REST
 
 > Projeto desenvolvido como requisito para a Pós-Graduação em Full Stack Development.
@@ -16,28 +14,29 @@ A aplicação segue os princípios da arquitetura REST, utiliza Docker para cont
 
 A aplicação foi estruturada seguindo o padrão **MVC (Model-View-Controller)** adaptado para APIs (sem a camada de View, retornando JSON), garantindo a separação de responsabilidades.
 
-* **Node.js & Express:** Responsáveis pelo servidor, roteamento e middlewares.
-* **Persistência de Dados:** Banco de dados para armazenamento das postagens.
-* **Docker:** Utilizado para criar ambientes isolados e reprodutíveis (Desenvolvimento e Produção).
-* **GitHub Actions:** Automação de testes e verificação de build a cada push.
+- **Node.js & Express:** Responsáveis pelo servidor, roteamento e middlewares.
+- **Persistência de Dados:** Banco de dados para armazenamento das postagens.
+- **Docker:** Utilizado para criar ambientes isolados e reprodutíveis (Desenvolvimento e Produção).
+- **GitHub Actions:** Automação de testes e verificação de build a cada push.
 
 ---
 
 ## 🚀 Tecnologias Utilizadas
 
-* **Linguagem:** JavaScript (Node.js)
-* **Framework:** Express
-* **Banco de Dados:** PostgreSQL
-* **DevOps:** Docker, Docker Compose
-* **CI/CD:** GitHub Actions
+- **Linguagem:** JavaScript (Node.js)
+- **Framework:** Express
+- **Banco de Dados:** PostgreSQL
+- **DevOps:** Docker, Docker Compose
+- **CI/CD:** GitHub Actions
 
 ---
 
 ## 📦 Como Executar
 
 ### Pré-requisitos
-* [Git](https://git-scm.com)
-* [Docker](https://www.docker.com/) & Docker Compose
+
+- [Git](https://git-scm.com)
+- [Docker](https://www.docker.com/) & Docker Compose
 
 ### Passo a Passo
 
@@ -66,6 +65,48 @@ A aplicação foi estruturada seguindo o padrão **MVC (Model-View-Controller)**
 
 4.  **Acesse a API**
     O servidor estará rodando em: `http://localhost:3000`
+
+---
+
+## ✅ Fluxo Correto de Execução e Testes
+
+1. Subir os containers
+docker-compose up --build
+
+2. Verificar containers
+docker ps
+
+3. Acessar Swagger
+http://localhost:3000/api-docs
+
+4. Testar endpoints no Swagger
+POST /posts
+GET /posts
+GET /posts/{id}
+PUT /posts/{id}
+DELETE /posts/{id}
+
+5. Executar testes unitários
+docker exec -it post-api npm run test
+
+6. Executar testes de integração
+docker exec -it post-api npm run test:integration
+
+---
+
+## 🧪 Testes Automatizados
+
+Testes Unitários:
+Validam funções e regras de negócio isoladamente.
+
+Execução:
+docker exec -it post-api npm run test
+
+Testes de Integração:
+Validam rotas, banco de dados e fluxo completo da aplicação.
+
+Execução:
+docker exec -it post-api npm run test:integration
 
 ---
 
