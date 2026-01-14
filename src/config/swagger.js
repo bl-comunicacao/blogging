@@ -1,23 +1,89 @@
-const swaggerJSDoc = require("swagger-jsdoc")
+const swaggerJsdoc = require("swagger-jsdoc")
 
-const swaggerOptions = {
+const options = {
   definition: {
-    openapi: "3.0.0",
+    openapi: "3.0.3",
     info: {
-      title: "Post API",
+      title: "Posts API",
       version: "1.0.0",
       description: "API para gerenciamento de posts",
     },
     servers: [
       {
         url: "http://localhost:3000",
-        description: "Servidor local",
+        description: "Ambiente local",
+      },
+    ],
+    components: {
+      schemas: {
+        Post: {
+          type: "object",
+          properties: {
+            id: {
+              type: "integer",
+              example: 1,
+            },
+            title: {
+              type: "string",
+              example: "Título do post",
+            },
+            content: {
+              type: "string",
+              example: "Conteúdo do post",
+            },
+            author: {
+              type: "string",
+              example: "Autor do post",
+            },
+          },
+        },
+        PostCreate: {
+          type: "object",
+          required: ["title", "content", "author"],
+          properties: {
+            title: {
+              type: "string",
+            },
+            content: {
+              type: "string",
+            },
+            author: {
+              type: "string",
+            },
+          },
+        },
+        PostUpdate: {
+          type: "object",
+          properties: {
+            title: {
+              type: "string",
+            },
+            content: {
+              type: "string",
+            },
+            author: {
+              type: "string",
+            },
+          },
+        },
+      },
+      responses: {
+        NotFound: {
+          description: "Recurso não encontrado",
+        },
+        BadRequest: {
+          description: "Erro de validação",
+        },
+      },
+    },
+    tags: [
+      {
+        name: "Posts",
+        description: "Gerenciamento de posts",
       },
     ],
   },
-  apis: ["./src/routes/*.js"], // arquivos onde estarão os comentários Swagger
+  apis: ["./src/routes/*.js"],
 }
 
-const swaggerSpec = swaggerJSDoc(swaggerOptions)
-
-module.exports = swaggerSpec
+module.exports = swaggerJsdoc(options)

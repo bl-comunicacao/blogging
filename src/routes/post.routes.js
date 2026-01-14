@@ -1,55 +1,40 @@
-const express = require("express");
-const controller = require("../controllers/post.controller");
+const express = require("express")
+const controller = require("../controllers/post.controller")
 
-const router = express.Router();
-
-/**
- * @swagger
- * tags:
- *   name: Posts
- *   description: Gerenciamento de posts
- */
+const router = express.Router()
 
 /**
  * @swagger
  * /posts:
  *   post:
  *     summary: Criar um novo post
- *     tags: [Posts]
+ *     tags:
+ *       - Posts
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             required:
- *               - title
- *               - content
- *               - author
- *             properties:
- *               title:
- *                 type: string
- *                 example: Título do post
- *               content:
- *                 type: string
- *                 example: Conteúdo do post
- *              author:
- *                 type: string
- *                 example: Autor do post
+ *             $ref: '#/components/schemas/PostCreate'
  *     responses:
  *       201:
  *         description: Post criado com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Post'
  *       400:
- *         description: Erro de validação
+ *         $ref: '#/components/responses/BadRequest'
  */
-router.post("/", controller.create);
+router.post("/", controller.create)
 
 /**
  * @swagger
  * /posts:
  *   get:
  *     summary: Listar todos os posts
- *     tags: [Posts]
+ *     tags:
+ *       - Posts
  *     responses:
  *       200:
  *         description: Lista de posts
@@ -58,35 +43,42 @@ router.post("/", controller.create);
  *             schema:
  *               type: array
  *               items:
- *                 type: object
+ *                 $ref: '#/components/schemas/Post'
  */
-router.get("/", controller.getAll);
+router.get("/", controller.getAll)
 
 /**
  * @swagger
  * /posts/search:
  *   get:
  *     summary: Buscar posts por termo
- *     tags: [Posts]
+ *     tags:
+ *       - Posts
  *     parameters:
  *       - in: query
  *         name: q
+ *         required: true
  *         schema:
  *           type: string
- *         required: true
- *         description: Termo de busca
  *     responses:
  *       200:
  *         description: Posts encontrados
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Post'
  */
-router.get("/search", controller.search);
+router.get("/search", controller.search)
 
 /**
  * @swagger
  * /posts/{id}:
  *   get:
  *     summary: Buscar post por ID
- *     tags: [Posts]
+ *     tags:
+ *       - Posts
  *     parameters:
  *       - in: path
  *         name: id
@@ -96,17 +88,22 @@ router.get("/search", controller.search);
  *     responses:
  *       200:
  *         description: Post encontrado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Post'
  *       404:
- *         description: Post não encontrado
+ *         $ref: '#/components/responses/NotFound'
  */
-router.get("/:id", controller.getById);
+router.get("/:id", controller.getById)
 
 /**
  * @swagger
  * /posts/{id}:
  *   put:
  *     summary: Atualizar um post
- *     tags: [Posts]
+ *     tags:
+ *       - Posts
  *     parameters:
  *       - in: path
  *         name: id
@@ -118,26 +115,26 @@ router.get("/:id", controller.getById);
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             properties:
- *               title:
- *                 type: string
- *               content:
- *                 type: string
+ *             $ref: '#/components/schemas/PostUpdate'
  *     responses:
  *       200:
  *         description: Post atualizado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Post'
  *       404:
- *         description: Post não encontrado
+ *         $ref: '#/components/responses/NotFound'
  */
-router.put("/:id", controller.update);
+router.put("/:id", controller.update)
 
 /**
  * @swagger
  * /posts/{id}:
  *   delete:
  *     summary: Remover um post
- *     tags: [Posts]
+ *     tags:
+ *       - Posts
  *     parameters:
  *       - in: path
  *         name: id
@@ -148,8 +145,8 @@ router.put("/:id", controller.update);
  *       204:
  *         description: Post removido com sucesso
  *       404:
- *         description: Post não encontrado
+ *         $ref: '#/components/responses/NotFound'
  */
-router.delete("/:id", controller.remove);
+router.delete("/:id", controller.remove)
 
-module.exports = router;
+module.exports = router
