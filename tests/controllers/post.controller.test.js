@@ -1,209 +1,393 @@
-jest.mock("../../src/services/post.service", () => ({
-  getAllPosts: jest.fn(),
-  getPostById: jest.fn(),
-  createPost: jest.fn(),
-  updatePost: jest.fn(),
-  deletePost: jest.fn(),
-  searchPosts: jest.fn(),
-}))
+require("dotenv").config()
 
-const controller = require("../../src/controllers/post.controller")
-const service = require("../../src/services/post.service")
-
-const mockResponse = () => {
-  const res = {}
-  res.status = jest.fn().mockReturnValue(res)
-  res.json = jest.fn().mockReturnValue(res)
-  res.send = jest.fn().mockReturnValue(res)
-  return res
+// Configura variáveis de ambiente para testes (fora do Docker)
+if (!process.env.DB_HOST || process.env.DB_HOST === "postgres") {
+  process.env.DB_HOST = "localhost"
+}
+if (!process.env.DB_PORT || process.env.DB_PORT === "5432") {
+  process.env.DB_PORT = "5433"
 }
 
-const mockRequest = ({ params = {}, body = {}, query = {} } = {}) => ({
-  params,
-  body,
-  query,
-})
+const request = require("supertest")
+const app = require("../../src/app")
+const pool = require("../../src/config/database")
+const initDatabase = require("../../src/config/init-db")
 
-describe("Post Controller", () => {
-  beforeEach(() => {
-    jest.clearAllMocks()
+describe("Post Controller - Testes Reais", () => {
+  beforeAll(async () => {
+    await initDatabase()
+  })
+
+  // Limpa a tabela antes de cada teste para garantir isolamento
+  beforeEach(async () => {
+    await pool.query("TRUNCATE TABLE posts RESTART IDENTITY CASCADE")
   })
 
   describe("getAll", () => {
-    it("Deve retornar 200 e lista de posts", async () => {
-      const postsMock = [
-        { id: 1, title: "Post 1" },
-        { id: 2, title: "Post 2" },
-      ]
+    it("Deve retornar 200 e lista de posts quando existirem posts", async () => {
+      // Cria posts primeiro
+      const post1 = {
+        title: "Post 1",
+        content: "Conteúdo do post 1",
+        author: "Autor 1"
+      }
+      const post2 = {
+        title: "Post 2",
+        content: "Conteúdo do post 2",
+        author: "Autor 2"
+      }
 
-      service.getAllPosts.mockResolvedValue(postsMock)
+      await request(app).post("/posts").send(post1)
+      await request(app).post("/posts").send(post2)
 
-      const req = mockRequest()
-      const res = mockResponse()
+      // Busca todos os posts
+      const res = await request(app).get("/posts")
 
-      await controller.getAll(req, res)
-
-      expect(service.getAllPosts).toHaveBeenCalledTimes(1)
-      expect(res.status).toHaveBeenCalledWith(200)
-      expect(res.json).toHaveBeenCalledWith(postsMock)
+      expect(res.statusCode).toBe(200)
+      expect(Array.isArray(res.body)).toBe(true)
+      expect(res.body.length).toBe(2)
+      expect(res.body[0]).toHaveProperty("id")
+      expect(res.body[0]).toHaveProperty("title")
+      expect(res.body[0]).toHaveProperty("content")
+      expect(res.body[0]).toHaveProperty("author")
+      expect(res.body[0]).toHaveProperty("created_at")
     })
 
     it("Deve retornar 404 quando não houver posts", async () => {
-      service.getAllPosts.mockResolvedValue([])
+      const res = await request(app).get("/posts")
 
-      const req = mockRequest()
-      const res = mockResponse()
-
-      await controller.getAll(req, res)
-
-      expect(res.status).toHaveBeenCalledWith(404)
-      expect(res.json).toHaveBeenCalledWith({
-        message: "Nenhum post encontrado",
-      })
+      expect(res.statusCode).toBe(404)
+      expect(res.body.status).toBe("fail")
+      expect(res.body.message).toBe("Nenhum post encontrado")
     })
   })
 
   describe("getById", () => {
-    it("Deve retornar 200 e o post", async () => {
-      const postMock = {
-        id: 1,
+    it("Deve retornar 200 e o post quando existir", async () => {
+      // Cria um post primeiro
+      const postData = {
         title: "Post Teste",
-        content: "Conteúdo",
-        author: "Autor",
+        content: "Conteúdo do post teste",
+        author: "Autor Teste"
       }
 
-      service.getPostById.mockResolvedValue(postMock)
+      const createRes = await request(app).post("/posts").send(postData)
+      const postId = createRes.body.post.id
 
-      const req = mockRequest({
-        params: { id: 1 },
-      })
-      const res = mockResponse()
+      // Busca o post criado
+      const res = await request(app).get(`/posts/${postId}`)
 
-      await controller.getById(req, res)
-
-      expect(service.getPostById).toHaveBeenCalledWith(1)
-      expect(res.status).toHaveBeenCalledWith(200)
-      expect(res.json).toHaveBeenCalledWith(postMock)
+      expect(res.statusCode).toBe(200)
+      expect(res.body.id).toBe(postId)
+      expect(res.body.title).toBe(postData.title)
+      expect(res.body.content).toBe(postData.content)
+      expect(res.body.author).toBe(postData.author)
     })
 
-    it("Deve retornar 404 quando ocorrer erro", async () => {
-      service.getPostById.mockRejectedValue(new Error("Post não encontrado"))
+    it("Deve retornar 404 quando post não for encontrado", async () => {
+      const res = await request(app).get("/posts/99999")
 
-      const req = mockRequest({
-        params: { id: 999 },
-      })
-      const res = mockResponse()
+      expect(res.statusCode).toBe(404)
+      expect(res.body.status).toBe("fail")
+      expect(res.body.message).toBe("Post não encontrado")
+    })
 
-      await controller.getById(req, res)
+    it("Deve retornar 400 quando ID for inválido", async () => {
+      const res = await request(app).get("/posts/abc")
 
-      expect(res.status).toHaveBeenCalledWith(404)
-      expect(res.json).toHaveBeenCalledWith({
-        message: "Post não encontrado",
-      })
+      expect(res.statusCode).toBe(400)
+      expect(res.body.status).toBe("fail")
+      expect(res.body.message).toBe("ID inválido")
     })
   })
 
   describe("create", () => {
     it("Deve criar um post e retornar 201", async () => {
-      const postMock = {
-        id: 1,
+      const postData = {
         title: "Novo Post",
-        content: "Conteúdo",
-        author: "Autor",
+        content: "Conteúdo do novo post",
+        author: "Autor do Post"
       }
 
-      service.createPost.mockResolvedValue(postMock)
+      const res = await request(app).post("/posts").send(postData)
 
-      const req = mockRequest({
-        body: postMock,
-      })
-      const res = mockResponse()
-
-      await controller.create(req, res)
-
-      expect(service.createPost).toHaveBeenCalledWith(req.body)
-      expect(res.status).toHaveBeenCalledWith(201)
-      expect(res.json).toHaveBeenCalledWith({
-        message: "Post criado com sucesso",
-        post: postMock,
-      })
+      expect(res.statusCode).toBe(201)
+      expect(res.body.message).toBe("Post criado com sucesso")
+      expect(res.body.post).toBeDefined()
+      expect(res.body.post.title).toBe(postData.title)
+      expect(res.body.post.content).toBe(postData.content)
+      expect(res.body.post.author).toBe(postData.author)
+      expect(res.body.post.id).toBeDefined()
+      expect(res.body.post.created_at).toBeDefined()
     })
 
-    it("Deve retornar 400 em caso de erro", async () => {
-      service.createPost.mockRejectedValue(new Error("Erro ao criar post"))
+    it("Deve retornar 400 em caso de erro de validação - falta título", async () => {
+      const postData = {
+        content: "Conteúdo sem título",
+        author: "Autor"
+      }
 
-      const req = mockRequest({
-        body: {},
-      })
-      const res = mockResponse()
+      const res = await request(app).post("/posts").send(postData)
 
-      await controller.create(req, res)
+      expect(res.statusCode).toBe(400)
+      expect(res.body.status).toBe("fail")
+      expect(res.body.message).toBe("Campos obrigatórios não preenchidos")
+      expect(res.body.errors).toContain("Título é obrigatório")
+    })
 
-      expect(res.status).toHaveBeenCalledWith(400)
-      expect(res.json).toHaveBeenCalledWith({
-        message: "Erro ao criar post",
-      })
+    it("Deve retornar 400 em caso de erro de validação - falta conteúdo", async () => {
+      const postData = {
+        title: "Título sem conteúdo",
+        author: "Autor"
+      }
+
+      const res = await request(app).post("/posts").send(postData)
+
+      expect(res.statusCode).toBe(400)
+      expect(res.body.status).toBe("fail")
+      expect(res.body.errors).toContain("Conteúdo é obrigatório")
+    })
+
+    it("Deve retornar 400 em caso de erro de validação - falta autor", async () => {
+      const postData = {
+        title: "Título sem autor",
+        content: "Conteúdo"
+      }
+
+      const res = await request(app).post("/posts").send(postData)
+
+      expect(res.statusCode).toBe(400)
+      expect(res.body.status).toBe("fail")
+      expect(res.body.errors).toContain("Autor é obrigatório")
+    })
+
+    it("Deve retornar 400 quando todos os campos estiverem vazios", async () => {
+      const res = await request(app).post("/posts").send({})
+
+      expect(res.statusCode).toBe(400)
+      expect(res.body.status).toBe("fail")
+      expect(res.body.errors.length).toBe(3)
     })
   })
 
   describe("update", () => {
     it("Deve atualizar um post e retornar 200", async () => {
-      const postAtualizado = {
-        id: 1,
-        title: "Post Atualizado",
+      // Cria um post primeiro
+      const postData = {
+        title: "Post Original",
+        content: "Conteúdo original",
+        author: "Autor Original"
       }
 
-      service.updatePost.mockResolvedValue(postAtualizado)
+      const createRes = await request(app).post("/posts").send(postData)
+      const postId = createRes.body.post.id
 
-      const req = mockRequest({
-        params: { id: 1 },
-        body: { title: "Post Atualizado" },
+      // Atualiza o post
+      const updateData = {
+        title: "Post Atualizado",
+        content: "Conteúdo atualizado",
+        author: "Autor Atualizado"
+      }
+
+      const res = await request(app).put(`/posts/${postId}`).send(updateData)
+
+      expect(res.statusCode).toBe(200)
+      expect(res.body.message).toBe("Post atualizado com sucesso")
+      expect(res.body.post.title).toBe(updateData.title)
+      expect(res.body.post.content).toBe(updateData.content)
+      expect(res.body.post.author).toBe(updateData.author)
+      expect(res.body.post.id).toBe(postId)
+    })
+
+    it("Deve atualizar apenas campos fornecidos (atualização parcial)", async () => {
+      // Cria um post primeiro
+      const postData = {
+        title: "Post Completo",
+        content: "Conteúdo completo",
+        author: "Autor Completo"
+      }
+
+      const createRes = await request(app).post("/posts").send(postData)
+      const postId = createRes.body.post.id
+
+      // Atualiza apenas o título
+      const updateData = {
+        title: "Apenas Título Atualizado"
+      }
+
+      const res = await request(app).put(`/posts/${postId}`).send(updateData)
+
+      expect(res.statusCode).toBe(200)
+      expect(res.body.post.title).toBe(updateData.title)
+      // Os outros campos devem permanecer
+      expect(res.body.post.content).toBe(postData.content)
+      expect(res.body.post.author).toBe(postData.author)
+    })
+
+    it("Deve retornar 404 quando tentar atualizar post inexistente", async () => {
+      const updateData = {
+        title: "Título",
+        content: "Conteúdo",
+        author: "Autor"
+      }
+
+      const res = await request(app).put("/posts/99999").send(updateData)
+
+      expect(res.statusCode).toBe(404)
+      expect(res.body.status).toBe("fail")
+      expect(res.body.message).toBe("Post não encontrado")
+    })
+
+    it("Deve retornar 400 quando ID for inválido", async () => {
+      const res = await request(app).put("/posts/abc").send({
+        title: "Teste"
       })
-      const res = mockResponse()
 
-      await controller.update(req, res)
-
-      expect(service.updatePost).toHaveBeenCalledWith(1, req.body)
-      expect(res.status).toHaveBeenCalledWith(200)
-      expect(res.json).toHaveBeenCalledWith({
-        message: "Post atualizado com sucesso",
-        post: postAtualizado,
-      })
+      expect(res.statusCode).toBe(400)
+      expect(res.body.status).toBe("fail")
+      expect(res.body.message).toBe("ID inválido")
     })
   })
 
   describe("remove", () => {
     it("Deve deletar um post e retornar 204", async () => {
-      service.deletePost.mockResolvedValue()
+      // Cria um post primeiro
+      const postData = {
+        title: "Post para Deletar",
+        content: "Este post será deletado",
+        author: "Autor"
+      }
 
-      const req = mockRequest({
-        params: { id: 1 },
-      })
-      const res = mockResponse()
+      const createRes = await request(app).post("/posts").send(postData)
+      const postId = createRes.body.post.id
 
-      await controller.remove(req, res)
+      // Deleta o post
+      const res = await request(app).delete(`/posts/${postId}`)
 
-      expect(service.deletePost).toHaveBeenCalledWith(1)
-      expect(res.status).toHaveBeenCalledWith(204)
+      expect(res.statusCode).toBe(204)
+
+      // Verifica que o post foi deletado
+      const getRes = await request(app).get(`/posts/${postId}`)
+      expect(getRes.statusCode).toBe(404)
+    })
+
+    it("Deve retornar 404 quando tentar deletar post inexistente", async () => {
+      const res = await request(app).delete("/posts/99999")
+
+      expect(res.statusCode).toBe(404)
+      expect(res.body.status).toBe("fail")
+      expect(res.body.message).toBe("Post não encontrado")
+    })
+
+    it("Deve retornar 400 quando ID for inválido", async () => {
+      const res = await request(app).delete("/posts/abc")
+
+      expect(res.statusCode).toBe(400)
+      expect(res.body.status).toBe("fail")
+      expect(res.body.message).toBe("ID inválido")
     })
   })
 
   describe("search", () => {
-    it("Deve retornar posts filtrados", async () => {
-      const postsMock = [{ id: 1, title: "Teste" }]
-
-      service.searchPosts.mockResolvedValue(postsMock)
-
-      const req = mockRequest({
-        query: { query: "Teste" },
+    beforeEach(async () => {
+      // Cria alguns posts para testar a busca
+      await request(app).post("/posts").send({
+        title: "JavaScript Avançado",
+        content: "Aprenda JavaScript avançado",
+        author: "Dev Master"
       })
-      const res = mockResponse()
 
-      await controller.search(req, res)
+      await request(app).post("/posts").send({
+        title: "Node.js para Iniciantes",
+        content: "Introdução ao Node.js",
+        author: "Dev Master"
+      })
 
-      expect(service.searchPosts).toHaveBeenCalledWith("Teste")
-      expect(res.status).toHaveBeenCalledWith(200)
-      expect(res.json).toHaveBeenCalledWith(postsMock)
+      await request(app).post("/posts").send({
+        title: "Python Básico",
+        content: "Aprenda Python do zero",
+        author: "Python Expert"
+      })
+    })
+
+    it("Deve retornar posts filtrados por termo no título", async () => {
+      const res = await request(app).get("/posts/search?q=JavaScript")
+
+      expect(res.statusCode).toBe(200)
+      expect(Array.isArray(res.body)).toBe(true)
+      expect(res.body.length).toBeGreaterThan(0)
+      expect(res.body[0].title).toContain("JavaScript")
+    })
+
+    it("Deve retornar posts usando query parameter 'query'", async () => {
+      const res = await request(app).get("/posts/search?query=Node")
+
+      expect(res.statusCode).toBe(200)
+      expect(Array.isArray(res.body)).toBe(true)
+      expect(res.body.length).toBeGreaterThan(0)
+      expect(res.body[0].title).toContain("Node")
+    })
+
+    it("Deve retornar lista vazia quando não encontrar resultados", async () => {
+      const res = await request(app).get("/posts/search?q=TermoInexistente")
+
+      expect(res.statusCode).toBe(200)
+      expect(Array.isArray(res.body)).toBe(true)
+      expect(res.body.length).toBe(0)
+    })
+
+    it("Deve retornar 400 quando query estiver vazia", async () => {
+      const res = await request(app).get("/posts/search?q=")
+
+      expect(res.statusCode).toBe(400)
+      expect(res.body.status).toBe("fail")
+      expect(res.body.message).toBe("Query de busca é obrigatória")
+    })
+
+    it("Deve retornar 400 quando query não for fornecida", async () => {
+      const res = await request(app).get("/posts/search")
+
+      expect(res.statusCode).toBe(400)
+      expect(res.body.status).toBe("fail")
+      expect(res.body.message).toBe("Query de busca é obrigatória")
+    })
+  })
+
+  describe("Fluxo completo do Controller", () => {
+    it("Deve realizar CRUD completo através do controller", async () => {
+      // CREATE
+      const postData = {
+        title: "Post Completo Controller",
+        content: "Conteúdo completo do post",
+        author: "Autor Completo"
+      }
+
+      const createRes = await request(app).post("/posts").send(postData)
+      expect(createRes.statusCode).toBe(201)
+      const postId = createRes.body.post.id
+
+      // READ
+      const getRes = await request(app).get(`/posts/${postId}`)
+      expect(getRes.statusCode).toBe(200)
+      expect(getRes.body.title).toBe(postData.title)
+
+      // UPDATE
+      const updateData = {
+        title: "Post Atualizado Controller",
+        content: "Conteúdo atualizado",
+        author: "Autor Atualizado"
+      }
+      const updateRes = await request(app).put(`/posts/${postId}`).send(updateData)
+      expect(updateRes.statusCode).toBe(200)
+      expect(updateRes.body.post.title).toBe(updateData.title)
+
+      // DELETE
+      const deleteRes = await request(app).delete(`/posts/${postId}`)
+      expect(deleteRes.statusCode).toBe(204)
+
+      // Verifica que foi deletado
+      const getAfterDelete = await request(app).get(`/posts/${postId}`)
+      expect(getAfterDelete.statusCode).toBe(404)
     })
   })
 })

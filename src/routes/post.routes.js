@@ -1,5 +1,6 @@
 const express = require("express")
 const controller = require("../controllers/post.controller")
+const asyncHandler = require("../middleware/asyncHandler.middleware")
 
 const router = express.Router()
 
@@ -26,7 +27,7 @@ const router = express.Router()
  *       400:
  *         $ref: '#/components/responses/BadRequest'
  */
-router.post("/", controller.create)
+router.post("/", asyncHandler(controller.create))
 
 /**
  * @swagger
@@ -45,7 +46,7 @@ router.post("/", controller.create)
  *               items:
  *                 $ref: '#/components/schemas/Post'
  */
-router.get("/", controller.getAll)
+router.get("/", asyncHandler(controller.getAll))
 
 /**
  * @swagger
@@ -70,7 +71,7 @@ router.get("/", controller.getAll)
  *               items:
  *                 $ref: '#/components/schemas/Post'
  */
-router.get("/search", controller.search)
+router.get("/search", asyncHandler(controller.search))
 
 /**
  * @swagger
@@ -95,7 +96,7 @@ router.get("/search", controller.search)
  *       404:
  *         $ref: '#/components/responses/NotFound'
  */
-router.get("/:id", controller.getById)
+router.get("/:id", asyncHandler(controller.getById))
 
 /**
  * @swagger
@@ -126,7 +127,7 @@ router.get("/:id", controller.getById)
  *       404:
  *         $ref: '#/components/responses/NotFound'
  */
-router.put("/:id", controller.update)
+router.put("/:id", asyncHandler(controller.update))
 
 /**
  * @swagger
@@ -147,6 +148,6 @@ router.put("/:id", controller.update)
  *       404:
  *         $ref: '#/components/responses/NotFound'
  */
-router.delete("/:id", controller.remove)
+router.delete("/:id", asyncHandler(controller.remove))
 
 module.exports = router

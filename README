@@ -46,8 +46,9 @@ A aplicação foi estruturada seguindo o padrão **MVC (Model-View-Controller)**
     cd blogging
     ```
 
-2.  **Configure as Variáveis de Ambiente**
-    Crie um arquivo `.env` na raiz do projeto e configure conforme o exemplo abaixo:
+2.  **Configure as Variáveis de Ambiente (Opcional)**
+    As variáveis de ambiente já estão configuradas no `docker-compose.yml`. 
+    Se quiser personalizar, crie um arquivo `.env` na raiz do projeto (veja `env.example` como referência):
     ```
     DB_HOST=postgres
     DB_PORT=5432
@@ -55,7 +56,9 @@ A aplicação foi estruturada seguindo o padrão **MVC (Model-View-Controller)**
     DB_PASSWORD=postgres
     DB_NAME=blog
     PORT=3000
+    NODE_ENV=development
     ```
+    **Nota:** O arquivo `.env` é opcional. O projeto funciona sem ele usando as configurações padrão do docker-compose.
 
 3.  **Execute com Docker Compose**
     Este comando irá construir a imagem da aplicação e subir o container do banco de dados.
