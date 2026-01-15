@@ -3,8 +3,8 @@ require("dotenv").config({
     process.env.NODE_ENV === "test"
       ? ".env.test"
       : process.env.NODE_ENV === "production"
-      ? ".env"
-      : ".env.local",
+        ? ".env"
+        : ".env.local",
 });
 
 const app = require("./app");

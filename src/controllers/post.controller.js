@@ -3,11 +3,11 @@ const { NotFoundError } = require('../errors')
 
 const getAll = async (req, res) => {
   const posts = await service.getAllPosts()
-  
+
   if (!posts || posts.length === 0) {
     throw new NotFoundError('Nenhum post encontrado')
   }
-  
+
   return res.status(200).json(posts)
 }
 
@@ -38,7 +38,7 @@ const remove = async (req, res) => {
 }
 
 const search = async (req, res) => {
-  // Suporta tanto 'q' quanto 'query' para compatibilidade
+  // Agora suporta Q e Query
   const searchQuery = req.query.q || req.query.query
   const posts = await service.searchPosts(searchQuery)
   return res.status(200).json(posts)

@@ -15,7 +15,7 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 // Rotas
 app.use("/posts", postRoutes)
 
-// Middleware de tratamento de erros (deve ser o último)
+// Middleware de tratamento de erros
 app.use(errorHandler)
 
 module.exports = app

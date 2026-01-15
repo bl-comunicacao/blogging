@@ -1,7 +1,3 @@
-require("dotenv").config({
-  path: ".env.test",
-})
-
 module.exports = {
   testEnvironment: "node",
   testMatch: ["**/tests/controllers/**/*.test.js"],

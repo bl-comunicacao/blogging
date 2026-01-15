@@ -1,28 +1,7 @@
-require("dotenv").config()
-
-// Configura variáveis de ambiente para testes (fora do Docker)
-if (!process.env.DB_HOST || process.env.DB_HOST === "postgres") {
-  process.env.DB_HOST = "localhost"
-}
-if (!process.env.DB_PORT || process.env.DB_PORT === "5432") {
-  process.env.DB_PORT = "5433"
-}
-
 const request = require("supertest")
 const app = require("../../src/app")
-const pool = require("../../src/config/database")
-const initDatabase = require("../../src/config/init-db")
 
 describe("Post Controller - Testes Reais", () => {
-  beforeAll(async () => {
-    await initDatabase()
-  })
-
-  // Limpa a tabela antes de cada teste para garantir isolamento
-  beforeEach(async () => {
-    await pool.query("TRUNCATE TABLE posts RESTART IDENTITY CASCADE")
-  })
-
   describe("getAll", () => {
     it("Deve retornar 200 e lista de posts quando existirem posts", async () => {
       // Cria posts primeiro

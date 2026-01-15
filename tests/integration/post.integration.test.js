@@ -1,13 +1,3 @@
-require("dotenv").config()
-
-// Configura variáveis de ambiente para testes (fora do Docker)
-if (!process.env.DB_HOST || process.env.DB_HOST === "postgres") {
-  process.env.DB_HOST = "localhost"
-}
-if (!process.env.DB_PORT || process.env.DB_PORT === "5432") {
-  process.env.DB_PORT = "5433"
-}
-
 const request = require("supertest")
 const app = require("../../src/app")
 
@@ -24,9 +14,9 @@ describe("Testes de Integração - Posts API", () => {
     it("Deve retornar lista de posts quando existirem posts", async () => {
       // Cria um post primeiro
       const postData = {
-        title: "Teste de Listagem",
+        title: "Vênus e Adônis",
         content: "Conteúdo do post de teste",
-        author: "Autor Teste"
+        author: "William Shakespear"
       }
 
       await request(app).post("/posts").send(postData)
