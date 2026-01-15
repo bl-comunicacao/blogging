@@ -24,8 +24,53 @@ jobs:
       - name: Instalar dependências
         run: npm ci
 
+      - name: Executar PostgreSQL
+        run: |
+          docker run -d \
+            --name postgres-test \
+            -e POSTGRES_DB=blog \
+            -e POSTGRES_USER=postgres \
+            -e POSTGRES_PASSWORD=postgres \
+            -p 5432:5432 \
+            postgres:16
+
+          # Aguarda o PostgreSQL estar pronto
+          echo "Aguardando PostgreSQL ficar pronto..."
+          counter=0
+          until docker exec postgres-test pg_isready -U postgres || [ $counter -eq 30 ]; do
+            counter=$((counter+1))
+            echo "Tentativa $counter/30..."
+            sleep 1
+          done
+
+          if [ $counter -eq 30 ]; then
+            echo "Erro: PostgreSQL não ficou pronto a tempo"
+            exit 1
+          fi
+
+          echo "PostgreSQL está pronto!"
+
+          # Aguarda um pouco mais para garantir que está totalmente inicializado
+          sleep 2
+
+          # Verifica se o banco está realmente acessível
+          docker exec postgres-test psql -U postgres -d blog -c "SELECT 1" || exit 1
+
       - name: Rodar testes unitários
         run: npm test
+        env:
+          DB_HOST: localhost
+          DB_PORT: 5432
+          DB_USER: postgres
+          DB_PASSWORD: postgres
+          DB_NAME: blog
+          NODE_ENV: test
+
+      - name: Limpar containers
+        if: always()
+        run: |
+          docker stop postgres-test || true
+          docker rm postgres-test || true
 
   cd:
     name: CD - Build e Deploy
