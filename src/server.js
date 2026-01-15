@@ -1,11 +1,14 @@
-require("dotenv").config({
-  path:
-    process.env.NODE_ENV === "test"
-      ? ".env.test"
-      : process.env.NODE_ENV === "production"
-        ? ".env"
-        : ".env.local",
-});
+require("dotenv").config();
+
+// Ajusta configurações do banco quando rodando localmente (fora do Docker)
+// Se DB_HOST for "postgres" (nome do container), ajusta para "localhost"
+if (process.env.DB_HOST === "postgres" && !process.env.DOCKER_CONTAINER) {
+  process.env.DB_HOST = "localhost";
+  // Ajusta a porta também, pois docker-compose expõe na 5433
+  if (process.env.DB_PORT === "5432") {
+    process.env.DB_PORT = "5433";
+  }
+}
 
 const app = require("./app");
 const initDatabase = require("./config/init-db");

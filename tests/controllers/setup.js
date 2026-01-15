@@ -1,9 +1,22 @@
-// Configura variáveis de ambiente para testes (sem depender de .env.test)
+// Carrega variáveis de ambiente do arquivo .env
+require("dotenv").config()
+
+// Configura variáveis de ambiente para testes
+// Usa valores do .env se existirem, caso contrário usa valores padrão
 process.env.NODE_ENV = process.env.NODE_ENV || "test"
 process.env.PORT = process.env.PORT || "3000"
 
 // Configuração do banco de dados para testes
-// Se não estiver definido, usa valores padrão para ambiente local
+// Ajusta DB_HOST se for "postgres" (nome do container) para "localhost" em testes locais
+if (process.env.DB_HOST === "postgres") {
+  process.env.DB_HOST = "localhost"
+  // Ajusta a porta também, pois docker-compose expõe na 5433
+  if (process.env.DB_PORT === "5432") {
+    process.env.DB_PORT = "5433"
+  }
+}
+
+// Se não estiver definido no .env, usa valores padrão para ambiente local
 process.env.DB_HOST = process.env.DB_HOST || "localhost"
 process.env.DB_PORT = process.env.DB_PORT || "5433"
 process.env.DB_USER = process.env.DB_USER || "postgres"
