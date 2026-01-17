@@ -1,8 +1,8 @@
-const express = require("express")
-const controller = require("../controllers/post.controller")
-const asyncHandler = require("../middleware/asyncHandler.middleware")
+import express, { Router } from "express";
+import * as controller from "../controllers/post.controller";
+import asyncHandler from "../middleware/asyncHandler.middleware";
 
-const router = express.Router()
+const router: Router = express.Router();
 
 /**
  * @swagger
@@ -27,7 +27,7 @@ const router = express.Router()
  *       400:
  *         $ref: '#/components/responses/BadRequest'
  */
-router.post("/", asyncHandler(controller.create))
+router.post("/", asyncHandler(controller.create));
 
 /**
  * @swagger
@@ -46,7 +46,7 @@ router.post("/", asyncHandler(controller.create))
  *               items:
  *                 $ref: '#/components/schemas/Post'
  */
-router.get("/", asyncHandler(controller.getAll))
+router.get("/", asyncHandler(controller.getAll));
 
 /**
  * @swagger
@@ -71,7 +71,7 @@ router.get("/", asyncHandler(controller.getAll))
  *               items:
  *                 $ref: '#/components/schemas/Post'
  */
-router.get("/search", asyncHandler(controller.search))
+router.get("/search", asyncHandler(controller.search));
 
 /**
  * @swagger
@@ -96,7 +96,7 @@ router.get("/search", asyncHandler(controller.search))
  *       404:
  *         $ref: '#/components/responses/NotFound'
  */
-router.get("/:id", asyncHandler(controller.getById))
+router.get("/:id", asyncHandler(controller.getById));
 
 /**
  * @swagger
@@ -127,7 +127,7 @@ router.get("/:id", asyncHandler(controller.getById))
  *       404:
  *         $ref: '#/components/responses/NotFound'
  */
-router.put("/:id", asyncHandler(controller.update))
+router.put("/:id", asyncHandler(controller.update));
 
 /**
  * @swagger
@@ -148,6 +148,6 @@ router.put("/:id", asyncHandler(controller.update))
  *       404:
  *         $ref: '#/components/responses/NotFound'
  */
-router.delete("/:id", asyncHandler(controller.remove))
+router.delete("/:id", asyncHandler(controller.remove));
 
-module.exports = router
+export default router;
