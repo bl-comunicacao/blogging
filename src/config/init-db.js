@@ -1,31 +1,32 @@
-const pool = require("./database");
-const fs = require("fs");
-const path = require("path");
+const { Pool } = require("pg");
 
-//verifica se o banco de dados está rodando e cria as tabelas se não existirem
-async function initDatabase() {
+module.exports = async function initDatabase() {
+  if (
+    !process.env.DB_HOST ||
+    !process.env.DB_PORT ||
+    !process.env.DB_USER ||
+    !process.env.DB_NAME
+  ) {
+    throw new Error("Variáveis de ambiente do banco não definidas");
+  }
+
+  const pool = new Pool({
+    host: process.env.DB_HOST,
+    port: Number(process.env.DB_PORT),
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+  });
+
   try {
     await pool.query("SELECT 1");
-
-    const tablesSqlPath = path.join(__dirname, "../tables.sql");
-    if (fs.existsSync(tablesSqlPath)) {
-      const tablesSql = fs.readFileSync(tablesSqlPath, "utf8");
-      await pool.query(tablesSql);
-    }
+    console.log(
+      `Banco conectado em ${process.env.DB_HOST}:${process.env.DB_PORT}`
+    );
   } catch (error) {
-    if (error.code === "ENOTFOUND" || error.code === "ECONNREFUSED") {
-      console.error(
-        "Erro de conexão com o banco de dados. Verifique se o PostgreSQL está rodando."
-      );
-      console.error(
-        `Tentando conectar em: ${process.env.DB_HOST}:${process.env.DB_PORT}`
-      );
-      throw new Error(
-        "Não foi possível conectar ao banco de dados. Certifique-se de que o Docker está rodando: docker-compose up -d postgres"
-      );
-    }
+    console.error(
+      `Erro ao conectar em ${process.env.DB_HOST}:${process.env.DB_PORT}`
+    );
     throw error;
   }
-}
-
-module.exports = initDatabase;
+};
