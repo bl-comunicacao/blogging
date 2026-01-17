@@ -1,5 +1,8 @@
 require("dotenv").config();
 
+console.log("DB_HOST:", process.env.DB_HOST);
+console.log("DB_PORT:", process.env.DB_PORT);
+
 // Ajusta configurações do banco quando rodando localmente (fora do Docker)
 // Se DB_HOST for "postgres" (nome do container), ajusta para "localhost"
 if (process.env.DB_HOST === "postgres" && !process.env.DOCKER_CONTAINER) {
