@@ -23,7 +23,7 @@ A aplicação foi estruturada seguindo o padrão **MVC (Model-View-Controller)**
 
 ## 🚀 Tecnologias Utilizadas
 
-- **Linguagem:** JavaScript (Node.js)
+- **Linguagem:** JavaScript (Node.js) / Typescript
 - **Framework:** Express
 - **Banco de Dados:** PostgreSQL
 - **DevOps:** Docker, Docker Compose
